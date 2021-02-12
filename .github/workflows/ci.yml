@@ -1,0 +1,29 @@
+name: ci
+
+on: push
+
+jobs:
+  builder:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        version: ["1.16.5", "1.16.4", "1.16.3", "1.16.2", "1.16.1", "1.16"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Install project dependencies
+        run: python3 setup.py install
+      - name: Build sounds json file
+        run: python3 munch.py --download ${{ matrix.version }} --toppings sounds | jq .[0].sounds > ${{ matrix.version }}.sounds.json
+      - name: Send data to publish job
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.version }}
+          path: ${{ matrix.version }}.sounds.json
+    publisher:
+      needs: [builder]
+      runs-on: ubuntu-20.04
+      steps:
+        - uses: actions/download-artifact@v2
+        - name: Display structure of downloaded files
+          run: ls -R
