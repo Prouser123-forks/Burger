@@ -22,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.version }}
-          path: ${{ matrix.version }}.sounds.json
+          path: sounds.json
   publisher:
       needs: [builder]
       runs-on: ubuntu-20.04
